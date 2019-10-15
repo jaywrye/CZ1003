@@ -61,9 +61,6 @@ cal.place(x = 110, y = 60)
 #time
 Label(left_frame2, text = "Choose time", font = ("Century Gothic", 10)).place(x = 10, y = 100)
 
-
-
-
 #def availablestores():
 #    storesopen = ['Macdonalds', 'KFC', 'Starbucks', 'Pizza Hut']
 #    messagebox.showinfo("Today's Stores", "\n".join(storesopen))
@@ -75,10 +72,27 @@ Label(left_frame2, text = "Choose time", font = ("Century Gothic", 10)).place(x 
 day = datetime.datetime.today().weekday()
 todaysMenu = {}
 
+todayStores_dup = []
+todayStores = []
+#window = tk.Toplevel(root)
+
 def userInput():
     global userInputStore
     storename = userInputStore.get()
-    print (userInputStore)
+    window = tk.Toplevel(root)
+    window.title(storename + "'s Menu") #create window
+    window.config(bg = 'white') #change background color
+    window.minsize(400, 500) #set size of window 
+
+    Label(window, text = storename + "'s Menu", font = h1, bg = "white").place(x = 120, y = 20)
+
+    for n in menuDB.menu:
+        if (n[0] == storename and n[1] == day):                  # n is a tuple, n[0] is the store name, n[1] is the day of the week; If n[1] has 7, it means it is available everyday
+            todaysMenu.update({n[2] : menuDB.menu[(storename, n[1], n[2])]})
+            #todayList = todaysMenu.items()
+            Label(window, text = todaysMenu, font = h3, bg = "white").place(x = 10, y = 100)
+
+userInputStore = StringVar()
 
 def todaystores():
     window = tk.Toplevel(root)
@@ -89,25 +103,54 @@ def todaystores():
     #storesopen = ['Macdonalds', 'KFC', 'Starbucks', 'Pizza Hut']
     #Label(window, text = "\n ".join(storesopen), font = h3, bg = "white").place(x = 50, y = 70)
 
-    for n in menuDB.storeList:
-        Label(window, text = n, font = h3, bg = "white").place(x = 50, y = 110)
+    # first check what stores are open. if stores names are duplicated, remove duplicated values
+    for n in menuDB.menu:
+        if(n[1] <= day):
+            todayStores_dup.append(n[0])
+            for i in todayStores_dup:
+                if i not in todayStores:
+                    todayStores.append(i)
+                    Label(window, text = ', '.join(todayStores) , font = h3, bg = "white").place(x = 50, y = 110)
+                    continue
 
     Label(window, text = "Please enter the name of the store: ", font = h3, bg = "white").place(x = 10, y = 30)
-    #userInputStore = Entry(window).place(x = 280, y = 35)
+    entuserInput = Entry(window, textvariable = userInputStore).place(x = 280, y = 35)
+    #go = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn 1.png")
+    Button(window, text = "Go!", bg = "silver", relief = FLAT, command = userInput, width = 4, height = 1).place(x = 430, y = 30)
+    #Label(window, text = todaysMenu, font = h1, bg = "white").place(x = 10, y = 100)
 
-    #go = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn4.png")
-    #Button(window, image = go, bg = "white", relief = FLAT, command = userInput).place(x = 400, y = 30)
-
-    
 def allstores():
     window2 = tk.Toplevel(root)
     window2.config(bg = "white")
     window2.title("All Stores")
     window2.minsize(600, 500) #set size of window 
     Label(window2, text = "Here is a list of all the available stores in North Spine:", font = h1, bg = "white").place(x = 10, y = 30)
+    style = ttk.Style()
+    style.configure("TButton", font = ("Century Gothic", 15, 'bold'), foreground = "#3366CC", background = 'white', width = "15")
+    ttk.Button(window2, text = "CAI PNG", style = "TButton").place(x = 30, y = 90)
+    ttk.Button(window2, text = "Tze Char", style = "TButton").place(x = 210, y = 90)
+    ttk.Button(window2, text = "Chicken Rice", style = "TButton").place(x = 390, y = 90)
     #allstores = ['Macdonalds', 'KFC', 'Starbucks', 'Subway', 'Pizza Hut', 'Long John Silver', 'The Sandwich Guys', 'Each a cup', 'Umi Sushi', 'Paik Bibim', 'The Soup Spoon', 'Boost']
     #Label(window2, text = "\n".join(allstores), font = h3, bg = "white").place(x = 50, y = 70)
-    Label(window2, text = "\n".join(menuDB.storeList), font = h3, bg = "white").place(x = 180, y = 70)
+    #caipngbtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn5.png")
+    #Button(window2, image = caipngbtn, bg = "red", relief = FLAT).place(x = 10, y = 120)
+
+    #tzecharbtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn6.png")
+    #Button(window2, image = tzecharbtn, bg = "white", relief = FLAT).place(x = 300, y = 120)
+
+    #chickricebtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn7.png")
+    #Button(window2, image = chickricebtn, bg = "white", relief = FLAT).place(x = 300, y = 120)
+
+    #koreanbtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn8.png")
+    #Button(window2, image = koreanbtn, bg = "white", relief = FLAT).place(x = 300, y = 120)
+
+    #japbtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn9.png")
+    #Button(window2, image = japbtn, bg = "white", relief = FLAT).place(x = 300, y = 120)
+
+    #noodlesbtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\btn10.png")
+    #Button(window2, image = noodlesbtn, bg = "white", relief = FLAT).place(x = 300, y = 120)
+
+    #Label(window2, text = "\n".join(menuDB.storeList), font = h3, bg = "white").place(x = 180, y = 70)
 
 # Right frame content
 #logobtn = PhotoImage(file = r"D:\NTU\CZ1003 Intro to Computational Thinking\Proj\logo.PNG")
