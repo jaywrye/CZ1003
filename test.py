@@ -71,7 +71,6 @@ Label(left_frame2, text = "Choose time", font = ("Century Gothic", 10)).place(x 
 
 day = datetime.datetime.today().weekday()
 todaysMenu = {}
-
 todayStores_dup = []
 todayStores = []
 #window = tk.Toplevel(root)
@@ -87,8 +86,8 @@ def userInput():
     Label(window, text = storename + "'s Menu", font = h1, bg = "white").place(x = 120, y = 20)
 
     for n in menuDB.menu:
-        if (n[0] == storename and n[1] == day):                  # n is a tuple, n[0] is the store name, n[1] is the day of the week; If n[1] has 7, it means it is available everyday
-            todaysMenu.update({n[2] : menuDB.menu[(storename, n[1], n[2])]})
+        if storename in n:                  # n is a tuple, n[0] is the store name, n[1] is the day of the week; If n[1] has 7, it means it is available everyday
+            todaysMenu.update({n[2] : menuDB.menu[n]})
             #todayList = todaysMenu.items()
             Label(window, text = todaysMenu, font = h3, bg = "white").place(x = 10, y = 100)
 
@@ -100,18 +99,15 @@ def todaystores():
     window.title("Today's Stores")
     window.minsize(600, 500) #set size of window 
     Label(window, text = "The stores opened today are:", font = h1, bg = "white").place(x = 10, y = 70)
-    #storesopen = ['Macdonalds', 'KFC', 'Starbucks', 'Pizza Hut']
-    #Label(window, text = "\n ".join(storesopen), font = h3, bg = "white").place(x = 50, y = 70)
 
-    # first check what stores are open. if stores names are duplicated, remove duplicated values
-    for n in menuDB.menu:
-        if(n[1] <= day):
-            todayStores_dup.append(n[0])
+    #list of all stores open today. if stall is duplicated, remove.
+    for n in menuDB.storeOpen:
+        if day in menuDB.storeOpen[n]:
+            todayStores_dup.append(n)
             for i in todayStores_dup:
                 if i not in todayStores:
                     todayStores.append(i)
-                    Label(window, text = ', '.join(todayStores) , font = h3, bg = "white").place(x = 50, y = 110)
-                    continue
+            Label(window, text = ', '.join(todayStores), font = h3, bg = "white").place(x = 50, y = 110)
 
     Label(window, text = "Please enter the name of the store: ", font = h3, bg = "white").place(x = 10, y = 30)
     entuserInput = Entry(window, textvariable = userInputStore).place(x = 280, y = 35)
