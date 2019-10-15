@@ -31,5 +31,12 @@ menu = {("Cai Png", 1, "Vegetables"):2.00,
         ("Noodles", 1, "Special Saturday Noodles"):4.50
         }
 
+storeOpen = { "Cai Png" : (0,1,2,3,4,5,6),
+              "Tze Char" : (0,1,2,3,4,5,6),
+              "Chicken Rice" : (0,1,2,3,4,5,6),
+              "Korean Food" : (0,1,2,3,4,5,6),
+              "Japanese Food" : (0,1,2,3,4,5,6),
+              "Noodles" : (0,1,2,3,4,5,6) }
+
 
 
