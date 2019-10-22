@@ -53,7 +53,7 @@ def excelConversion(xlsxFileLocation):                                         #
         if ((openinghours.cell(row, 2).value) == 'Sunday'):
             DayDict.update({6 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-    return menu, storeOpen
+    return menu, storeOpen      #format of menu dictionary --> {(Store Name, Food Name) : Price} | format of storeOpen dictionary --> {Store Name : {Day of week, (Opening Time, Closing Time)}}
 
 def storesopen(dayofweek, storeOpenDict):                                          # Function that returns a list of stores open on the chosen day using chosen Dict
     storesopenList = []                                                        # dayofweek is an int ranging from 0-6  with 0 being Monday and 6 being Sunday
