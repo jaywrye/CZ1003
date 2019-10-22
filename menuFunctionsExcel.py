@@ -12,7 +12,7 @@ def excelConversion(xlsxFileLocation):                                         #
     storeOpen = {}
 
     for row in range(2, food.max_row):                                          #parses information in food sheet and converts to dictionary
-        key = (food.cell(row, 1).value, 7, food.cell(row, 2).value)
+        key = (food.cell(row, 1).value, food.cell(row, 2).value)
         menu.update({key : food.cell(row, 3).value})
 
     DayDict = {}
