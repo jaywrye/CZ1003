@@ -70,7 +70,7 @@ def storeopeningtime(storename, day, storeOpenDict):                            
 def storemenu(storename, menuDict):                                            # Function that returns dictionary of ALL items on their menu {"Name of food item" : price of food}
     storemenuDict = {}                                                         # storename is a string
     for n in menuDict:
-        if lower(storename) == lower(n[0]):
+        if storename.lower() == n[0].lower():
             storemenuDict.update({n[1] : menuDict[n]})
     return storemenuDict
 
