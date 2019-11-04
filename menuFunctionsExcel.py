@@ -86,3 +86,19 @@ def dictSplit(storemenuDict):                                   # Function that 
         storenameList.append(storename)
         storepriceList.append(storemenuDict[storename])
     return storenameList, storepriceList
+
+def excelConversionInfo(xlsxFileLocation):                                         #Parses through the excel and generates 1 dictionaries: storeinfo
+    wb = load_workbook(xlsxFileLocation)
+    info = wb['store information']
+    storeinfo = {}
+
+    for row in range(2, info.max_row):
+        storeinfo.update({info.cell(row, 1).value : (info.cell(row, 2).value, info.cell(row, 3).value, info.cell(row, 4).value, info.cell(row, 5).value)})
+    
+    return storeinfo
+
+def storeAvgWaitTime(storename, customerNumber, infoDict):                                #Function that returns the average wait time * customerNumber for that store
+    storetype = ""
+    avgwaittime = infoDict[storename][3]
+    return avgwaittime*customerNumber
+
