@@ -98,7 +98,6 @@ def excelConversionInfo(xlsxFileLocation):                                      
     return storeinfo
 
 def storeAvgWaitTime(storename, customerNumber, infoDict):                                #Function that returns the average wait time * customerNumber for that store
-    storetype = ""
     avgwaittime = infoDict[storename][3]
     return avgwaittime*customerNumber
 
