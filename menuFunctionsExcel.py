@@ -33,7 +33,7 @@ def excelConversion(xlsxFileLocation):                                         #
                 DayDict.update({n : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
         if ((openinghours.cell(row, 2).value) == 'Monday'):
-            DayDict.update({1 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            DayDict.update({0 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
         if ((openinghours.cell(row, 2).value) == 'Tuesday'):
             DayDict.update({1 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
