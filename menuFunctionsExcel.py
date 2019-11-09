@@ -63,8 +63,13 @@ def storesopen(dayofweek, storeOpenDict):                                       
     return storesopenList
 
 def storeopeningtime(storename, day, storeOpenDict):                             # Function that returns opening time and closing time based on storename and day
-    opentime = storeOpenDict[storename][day][0]
-    closetime = storeOpenDict[storename][day][1]
+    if day in storeOpenDict[storename]:
+        opentime = storeOpenDict[storename][day][0]
+        closetime = storeOpenDict[storename][day][1]
+    else:
+        day = next(iter(storeOpenDict[storename]))
+        opentime = storeOpenDict[storename][day][0]
+        closetime = storeOpenDict[storename][day][1]
     return opentime, closetime
 
 def storemenu(storename, menuDict):                                            # Function that returns dictionary of ALL items on their menu {"Name of food item" : price of food}
