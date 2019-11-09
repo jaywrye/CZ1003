@@ -33,7 +33,7 @@ def excelConversion(xlsxFileLocation):                                         #
                 DayDict.update({n : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
         if ((openinghours.cell(row, 2).value) == 'Monday'):
-            DayDict.update({1 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            DayDict.update({0 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
         if ((openinghours.cell(row, 2).value) == 'Tuesday'):
             DayDict.update({1 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
@@ -98,7 +98,18 @@ def excelConversionInfo(xlsxFileLocation):                                      
     return storeinfo
 
 def storeAvgWaitTime(storename, customerNumber, infoDict):                                #Function that returns the average wait time * customerNumber for that store
-    storetype = ""
     avgwaittime = infoDict[storename][3]
     return avgwaittime*customerNumber
+
+def storesopentime(dayofweek, chosentime, storeOpenDict):        # Function that returns a list of stores open on the chosen day using chosen Dict
+    storesopenList = []                                                        # dayofweek is an int ranging from 0-6  with 0 being Monday and 6 being Sunday
+    for n in storeOpenDict:
+        print(n," ",storeOpenDict[n][dayofweek][0])
+        if dayofweek in storeOpenDict[n]:
+            try:
+                if (chosentime >= storeOpenDict[n][dayofweek][0])  and (chosentime <= storeOpenDict[n][dayofweek][1]):
+                    storesopenList.append(n)
+            except:
+                break
+    return storesopenList
 
