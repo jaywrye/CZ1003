@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import *   
-from datetime import datetime
+import datetime
 import time
 from tkinter import messagebox
 
@@ -18,14 +18,10 @@ root.title("Home") #create window
 root.config(bg = 'white') #change background color
 root.minsize(800, 500) #set size of window 
 
-#declarations
-day = datetime.today().weekday()
-storemenuDict = {}
 
-#todayStores_dup = []
-#todayStores = [] 
-#todayValues = []
-#todayKeys = []
+#declarations
+day = datetime.datetime.today().weekday()
+storemenuDict = {}
 storesOpenList = []
 
 #declare variables
@@ -35,7 +31,7 @@ closetime = 0
 time1 = ''
 userInputFood = StringVar()
 pplwaiting = StringVar()
-wb = openpyxl.load_workbook('North Spine Canteen Details.xlsx') #load excel
+wb = openpyxl.load_workbook('North Spine Canteen Details (New).xlsx') #load excel
 
 openinghours = wb['opening hours']
 food = wb['food']
@@ -46,7 +42,8 @@ storeOpen = {}
 storeinfo = {}
 storeOpenDict = {}
 DayDict = {}
-dayofweek = datetime.today().weekday()
+dayofweek = datetime.datetime.today().weekday()
+lunchtime = datetime.time(12,0,0)
 
 def excelConversion():                                         #Parses through the excel and generates 2 dictionaries: menu, storeOpen
     #wb = load_workbook(xlsxFileLocation)
@@ -59,7 +56,7 @@ def excelConversion():                                         #Parses through t
     
     for row in range(2, food.max_row):                                          #parses information in food sheet and converts to dictionary
         key = (food.cell(row, 1).value, food.cell(row, 2).value)
-        menu.update({key : food.cell(row, 3).value})
+        menu.update({key : (food.cell(row, 3).value, food.cell(row, 4).value)})
     
     for row in range(2, info.max_row):
         storeinfo.update({info.cell(row, 1).value : (info.cell(row, 2).value, info.cell(row, 3).value, info.cell(row, 4).value, info.cell(row, 5).value)})
@@ -68,77 +65,54 @@ def excelConversion():                                         #Parses through t
     PreviousStore = openinghours.cell(2, 1).value
 
     for row in range(2, openinghours.max_row):                                   #iterates through the rows of opening hours sheet
-        if (openinghours.cell(row, 1).value != PreviousStore):                   #if the name of the store changes, update dictionary with store name and the days that the store is open
-            storeOpen.update({PreviousStore : DayDict})
-            PreviousStore = openinghours.cell(row, 1).value
-            DayDict = {}                                                         #Clear dictionary
+        for row in range(2, openinghours.max_row):                                   #iterates through the rows of opening hours sheet
+            if (openinghours.cell(row, 1).value != PreviousStore):                   #if the name of the store changes, update dictionary with store name and the days that the store is open
+                storeOpen.update({PreviousStore : DayDict})
+                PreviousStore = openinghours.cell(row, 1).value
+                DayDict = {}                                                         #Clear dictionary
 
-        if ((openinghours.cell(row, 2).value) == 'Weekdays'):           #Update DayDict with key as the day of the week(0 = Monday ... 6 = Sunday) and the value as a tuple with (opening hours, closing hours)
-            for n in range(0, 5):
-                DayDict.update({n : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Weekdays'):           #Update DayDict with key as the day of the week(0 = Monday ... 6 = Sunday) and the value as a tuple with (opening hours, closing hours)
+                for n in range(0, 5):
+                    DayDict.update({n : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Weekends'):
-            for n in range(5, 7):
-                DayDict.update({n : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Weekends'):
+                for n in range(5, 7):
+                    DayDict.update({n : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Monday'):
-            DayDict.update({0 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Monday'):
+                DayDict.update({0 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Tuesday'):
-            DayDict.update({1 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Tuesday'):
+                DayDict.update({1 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Wednesday'):
-            DayDict.update({2 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Wednesday'):
+                DayDict.update({2 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Thursday'):
-            DayDict.update({3 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Thursday'):
+                DayDict.update({3 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Friday'):
-            DayDict.update({4 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Friday'):
+                DayDict.update({4 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Saturday'):
-            DayDict.update({5 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Saturday'):
+                DayDict.update({5 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
-        if ((openinghours.cell(row, 2).value) == 'Sunday'):
-            DayDict.update({6 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
+            if ((openinghours.cell(row, 2).value) == 'Sunday'):
+                DayDict.update({6 : (openinghours.cell(row, 3).value, openinghours.cell(row, 4).value)})
 
     return menu, storeOpen      #format of menu dictionary --> {(Store Name, Food Name) : Price} | format of storeOpen dictionary --> {Store Name : {Day of week, (Opening Time, Closing Time)}}
 
 def userWaitingTime():
     global pplwaiting
-    customernumber = int(pplwaiting.get())
+    customernumber = pplwaiting.get()
 
-    avgwaittime = int(storeinfo[store][3])
-    waitingtime = customernumber * avgwaittime
-    messagebox.showinfo("Waiting Time", "The waiting time will be approximately " + str(waitingtime) + " mins")
-    
-#def userInput():
-    #global userInputFood
-    #foodname = userInputFood.get()
-    #print(foodname)
-    #storename = userInputStore.get()
-    #storemenuDict = {}
-    #for n in menuDict:
-    #    if foodname.lower() == n[1].lower() or foodname == n[1]:
-    #        window = tk.Toplevel(root)
-    #        window.title("Price") #create window
-    #        window.config(bg = 'white') #change background color
-    #        window.minsize(400, 30) #set size of window 
-    #        storemenuDict.update({n[1] : menuDict[n]})
-    #        allprices = [v for v in storemenuDict.values()]
-    #        Label(window, text = "The price of " + '\n'.join(storemenuDict) + " is: ", font = h3, bg = "white").place(x = 10, y = 50)
-    #        Label(window, text = "$" + '\n'.join(map(str, allprices)), font = h1, bg = "white").place(x = 10, y = 80)
-        #else:
-        #    messagebox.showerror("Error", "Food not found. Please enter another food.")
-        #    break
-
-    #storemenuDict = {}
-    #for n in menuDict:
-    #    if storename.lower() == n[0].lower(): 
-    #        storemenuDict.update({n[1] : menuDict[n]})
-    #        allprices = [v for v in storemenuDict.values()]
-    #        Label(window, text = '\n'.join(storemenuDict), font = h3, bg = "white").place(x = 10, y = 70)
-    #        Label(window, text = '\n'.join(map(str, allprices)), font = h3, bg = "white").place(x = 370, y = 70)
+    if customernumber.isdigit():
+            customernumber = int(pplwaiting.get())
+            avgwaittime = int(storeinfo[store][3])
+            waitingtime = customernumber * avgwaittime
+            messagebox.showinfo("Waiting Time", "The waiting time will be approximately " + str(waitingtime) + " mins")
+    else:
+        messagebox.showinfo("Error", "Please enter numbers only.")
 
 def usercustom():
     storesOpenList = []
@@ -146,13 +120,12 @@ def usercustom():
     
     # get user input date
     userdate = cal.get_date()
-    #Label(customwindow, text = userdate).place(x = 0, y = 10)
     
     # get user input time
-    userhour = hour.get()
-    usermin = min.get()
+    userhour = hourcombo.get()
+    usermin = mincombo.get()
     usertime = userhour + ":" + usermin
-    convertedtime = datetime.strptime(usertime, "%H:%M")
+    convertedtime = datetime.datetime.strptime(usertime, "%H:%M")
     convertedtime2 = convertedtime.time()
 
     #returns list of open stalls based on user defined date and time
@@ -161,12 +134,13 @@ def usercustom():
             try: 
                 if(convertedtime2 >= storeOpenDict[n][dayofweek][0]) and (convertedtime2 <= storeOpenDict[n][dayofweek][1]):
                     storesOpenList.append(n)
+                    print(storesOpenList)
             except:
                 break
 
     ddlLabel = Label(window2, text = "Please choose a restaurant: ", font = h3, bg = "white")
     ddlLabel.place(x = 10, y = 110)
-        
+
     ddl = StringVar(window2)
     ddl.set(storesOpenList[0]) #set first item as default value
 
@@ -183,25 +157,27 @@ def usercustom():
 
 def customshopmenu():
     storemenuDict = {} 
-    
-    shopmenu = tk.Toplevel(root)
-    shopmenu.config(bg = "white")
-    shopmenu.title("Menu")
-    shopmenu.minsize(400, 380)
 
     chosenshop = ddl.get()
 
-    titleLabel = Label(shopmenu, text = chosenshop + "'s Menu", bg = "white", font = h2)
-    titleLabel.place(x = 10, y = 2)
+    titleLabel = Label(window2, text = chosenshop + "'s Menu", bg = "white", font = h2)
+    titleLabel.place(x = 10, y = 150)
 
     for n in menuDict:
         if chosenshop in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(shopmenu, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 10, y = 50)
-            price = Label(shopmenu, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 300, y = 50)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(window2, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 10, y = 200)
+    price = Label(window2, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 350, y = 200)
 
 def allstores():
     window = tk.Toplevel(root)
@@ -296,17 +272,8 @@ def allstores():
     img.image = render
     img.place(x = 210, y = 330)
 
-    #Label(window, text = "Please search for a food: ", font = h3, bg = "white").place(x = 30, y = 30)
-    #Entry(window, textvariable = userInputFood).place(x = 240, y = 35)
-
-    #load = Image.open('images/gobtn.png')
-    #render = ImageTk.PhotoImage(load)
-    #img = Button(window, image = render, command = userInput, relief = FLAT, borderwidth = 0)
-    #img.image = render
-    #img.place(x = 380, y = 30)
-
 def custom():
-    global window2, cal, min, hour
+    global window2, cal, hourcombo, mincombo
     window2 = tk.Toplevel(root)
     window2.config(bg = "white")
     window2.title("Customisation")
@@ -323,27 +290,27 @@ def custom():
     #time
     Label(window2, text = "Choose time", font = h3, bg = "white").place(x = 240, y = 60)
 
-    def trace_var(window2, *args):
-        last_value = ""
-        if last_value == "59" and minstr.get() == "00":
-            hourstr.set(int(hourstr.get())+1 if hourstr.get() !="23" else 0)
-        last_value = minstr.get()
+    hour_list = []
+    for hour in range(0, 24):
+        if hour < 10:
+            hour = '0' + str(hour)
+        hour_list.append(str(hour))
+    hourcombo = ttk.Combobox(window2, values=hour_list, width=5,)
+    hourcombo.place(x = 350, y = 65)
 
-    hourstr = StringVar(window2,'10')
-    hour = tk.Spinbox(window2, from_ = 00,to = 23, wrap = True, textvariable = hourstr, width = 5, relief = FLAT, state = "readonly")
-    hour.config(background = "white", bd = 2, font = h4)
-    minstr = tk.StringVar(window2,'00')
-    minstr.trace("w",trace_var)
-    min = tk.Spinbox(window2, from_ = 00,to = 59, wrap = True, textvariable = minstr, width = 5, relief = FLAT, state = "readonly")
-    min.config(background = "white", bd = 2, font = h4)
-    hour.place(x = 350, y = 65)
-    min.place(x = 400, y = 65)
+    minute_list = []
+    for minute in range(0,60):
+        if minute < 10:
+            minute = '0' + str(minute)
+        minute_list.append(str(minute))
+    mincombo = ttk.Combobox(window2, values=minute_list, width=5)
+    mincombo.place(x = 420, y = 65)
 
     load = Image.open('images/gobtn.png')
     render = ImageTk.PhotoImage(load)
     img = Button(window2, image = render, relief = FLAT, borderwidth = 0, command = usercustom)
     img.image = render
-    img.place(x = 470, y = 58)
+    img.place(x = 480, y = 58)
 
 
 def miniwokbtn():
@@ -380,18 +347,36 @@ def miniwokbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(miniwokpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 30, y = 250)
-            price = Label(miniwokpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 350, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(miniwokpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 30, y = 250)
+    price = Label(miniwokpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 350, y = 250)
 
     Label(miniwokpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 600)
     Entry(miniwokpop, textvariable = pplwaiting).place(x = 130, y = 600)
-    Button(miniwokpop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 270, y = 600)
-    okbtn = Button(miniwokpop, text = "Okay", command = miniwokpop.destroy)
-    okbtn.place(x = 190, y = 650)
+
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(miniwokpop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 270, y = 590)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(miniwokpop, image = render, relief = FLAT, borderwidth = 0, command = miniwokpop.destroy)
+    img.image = render
+    img.place(x = 190, y = 650)
 
 def yongtaufoobtn():
     global store
@@ -426,19 +411,36 @@ def yongtaufoobtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(yongtaufoopop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(yongtaufoopop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(yongtaufoopop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(yongtaufoopop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(yongtaufoopop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 480)
     Entry(yongtaufoopop, textvariable = pplwaiting).place(x = 150, y = 480)
-    Button(yongtaufoopop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 480)
 
-    okbtn = Button(yongtaufoopop, text = "Okay", command = yongtaufoopop.destroy)
-    okbtn.place(x = 175, y = 530)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(yongtaufoopop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 480)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(yongtaufoopop, image = render, relief = FLAT, borderwidth = 0, command = yongtaufoopop.destroy)
+    img.image = render
+    img.place(x = 175, y = 530)
 
 def chickricebtn():
     global store
@@ -473,19 +475,37 @@ def chickricebtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(chickricepop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(chickricepop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(chickricepop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(chickricepop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(chickricepop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 430)
     Entry(chickricepop, textvariable = pplwaiting).place(x = 150, y = 430)
     Button(chickricepop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 430)
 
-    okbtn = Button(chickricepop, text = "Okay", command = chickricepop.destroy)
-    okbtn.place(x = 175, y = 470)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(chickricepop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 430)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(chickricepop, image = render, relief = FLAT, borderwidth = 0, command = chickricepop.destroy)
+    img.image = render
+    img.place(x = 175, y = 470)
 
 def noodlesbtn():
     global store
@@ -520,19 +540,37 @@ def noodlesbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(noodlespop, text = '\n'.join(storemenuDict), font = h3, bg = "white")
-            fooditems.place(x = 50, y = 250)
-            rrice = Label(noodlespop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(noodlespop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(noodlespop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(noodlespop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 510)
     Entry(noodlespop, textvariable = pplwaiting).place(x = 150, y = 510)
     Button(noodlespop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 510)
 
-    okbtn = Button(noodlespop, text = "Okay", command = noodlespop.destroy)
-    okbtn.place(x = 175, y = 550)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(noodlespop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 510)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(noodlespop, image = render, relief = FLAT, borderwidth = 0, command = noodlespop.destroy)
+    img.image = render
+    img.place(x = 175, y = 550)
 
 def mixedricebtn():
     global store
@@ -567,19 +605,37 @@ def mixedricebtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(mixedricepop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 100, y = 250)
-            price = Label(mixedricepop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 250, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(mixedricepop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 100, y = 250)
+    price = Label(mixedricepop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 250, y = 250)
 
     Label(mixedricepop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 380)
     Entry(mixedricepop, textvariable = pplwaiting).place(x = 150, y = 380)
-    Button(mixedricepop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 380)
 
-    okbtn = Button(mixedricepop, text = "Okay", command = mixedricepop.destroy) 
-    okbtn.place(x = 155, y = 420)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(mixedricepop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 380)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(mixedricepop, image = render, relief = FLAT, borderwidth = 0, command = mixedricepop.destroy)
+    img.image = render
+    img.place(x = 155, y = 420)
+
 
 def westernbtn():
     global store
@@ -614,19 +670,36 @@ def westernbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(westernpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(westernpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(westernpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(westernpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(westernpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 410)
     Entry(westernpop, textvariable = pplwaiting).place(x = 150, y = 410)
-    Button(westernpop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 410)
 
-    okbtn = Button(westernpop, text = "Okay", command = westernpop.destroy)
-    okbtn.place(x = 175, y = 460)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(westernpop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 410)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(westernpop, image = render, relief = FLAT, borderwidth = 0, command = westernpop.destroy)
+    img.image = render
+    img.place(x = 175, y = 460)
 
 def drinksbtn():
     global store
@@ -642,7 +715,7 @@ def drinksbtn():
         closetime = storeOpenDict[store][day2][1]
 
     drinkspop = tk.Toplevel(root)
-    drinkspop.minsize(450, 720)
+    drinkspop.minsize(450, 700)
     drinkspop.title(store)
     drinkspop.config(bg = "white")
 
@@ -661,19 +734,35 @@ def drinksbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(drinkspop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(drinkspop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+        
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(drinkspop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(drinkspop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
-    Label(drinkspop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 650)
-    Entry(drinkspop, textvariable = pplwaiting).place(x = 150, y = 650)
-    Button(drinkspop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 650)
+    Label(drinkspop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 580)
+    Entry(drinkspop, textvariable = pplwaiting).place(x = 150, y = 580)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(drinkspop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 580)
 
-    okbtn = Button(drinkspop, text = "Okay", command = drinkspop.destroy)
-    okbtn.place(x = 175, y = 700)
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(drinkspop, image = render, relief = FLAT, borderwidth = 0, command = drinkspop.destroy)
+    img.image = render
+    img.place(x = 175, y = 630)
 
 def soupbtn():
     global store
@@ -708,19 +797,36 @@ def soupbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(souppop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(souppop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 300, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(souppop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(souppop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 300, y = 250)
 
     Label(souppop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 480)
     Entry(souppop, textvariable = pplwaiting).place(x = 150, y = 480)
-    Button(souppop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 480)
 
-    okbtn = Button(souppop, text = "Okay", command = souppop.destroy)
-    okbtn.place(x = 175, y = 520)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(souppop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 480)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(souppop, image = render, relief = FLAT, borderwidth = 0, command = souppop.destroy)
+    img.image = render
+    img.place(x = 175, y = 520)
 
 
 def malaybtn():
@@ -756,19 +862,36 @@ def malaybtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(malaypop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(malaypop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 300, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+        
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(malaypop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(malaypop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 300, y = 250)
 
     Label(malaypop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 450)
     Entry(malaypop, textvariable = pplwaiting).place(x = 150, y = 450)
-    Button(malaypop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 450)
 
-    okbtn = Button(malaypop, text = "Okay", command = malaypop.destroy)
-    okbtn.place(x = 175, y = 490)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(malaypop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 450)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(malaypop, image = render, relief = FLAT, borderwidth = 0, command = malaypop.destroy)
+    img.image = render
+    img.place(x = 175, y = 490)
 
 def vegetarianbtn():
     global store
@@ -803,19 +926,36 @@ def vegetarianbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(vegetarianpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(vegetarianpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+    
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(vegetarianpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(vegetarianpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(vegetarianpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 420)
     Entry(vegetarianpop, textvariable = pplwaiting).place(x = 150, y = 420)
-    Button(vegetarianpop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 420)
 
-    okbtn = Button(vegetarianpop, text = "Okay", command = vegetarianpop.destroy)
-    okbtn.place(x = 175, y = 460)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(vegetarianpop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 420)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(vegetarianpop, image = render, relief = FLAT, borderwidth = 0, command = vegetarianpop.destroy)
+    img.image = render
+    img.place(x = 175, y = 460)
 
 def saladbtn():
     global store
@@ -850,19 +990,36 @@ def saladbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(saladpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(saladpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 300, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(saladpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(saladpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 300, y = 250)
 
     Label(saladpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 490)
     Entry(saladpop, textvariable = pplwaiting).place(x = 150, y = 490)
-    Button(saladpop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 490)
 
-    okbtn = Button(saladpop, text = "Okay", command = saladpop.destroy)
-    okbtn.place(x = 175, y = 530)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(saladpop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 490)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(saladpop, image = render, relief = FLAT, borderwidth = 0, command = saladpop.destroy)
+    img.image = render
+    img.place(x = 175, y = 530)
 
 def pastabtn():
     global store
@@ -897,19 +1054,36 @@ def pastabtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(pastapop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(pastapop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(pastapop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(pastapop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(pastapop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 590)
     Entry(pastapop, textvariable = pplwaiting).place(x = 150, y = 590)
-    Button(pastapop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 590)
 
-    okbtn = Button(pastapop, text = "Okay", command = pastapop.destroy)
-    okbtn.place(x = 155, y = 630)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(pastapop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 590)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(pastapop, image = render, relief = FLAT, borderwidth = 0, command = pastapop.destroy)
+    img.image = render
+    img.place(x = 155, y = 630)
 
 def longjohnbtn():
     global store
@@ -944,19 +1118,36 @@ def longjohnbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(ljspop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 30, y = 250)
-            price = Label(ljspop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 370, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+    
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(ljspop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 30, y = 250)
+    price = Label(ljspop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 370, y = 250)
 
     Label(ljspop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 560)
     Entry(ljspop, textvariable = pplwaiting).place(x = 150, y = 560)
-    Button(ljspop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 560)
 
-    okbtn = Button(ljspop, text = "Okay", command = ljspop.destroy)
-    okbtn.place(x = 175, y = 600)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(ljspop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 560)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(ljspop, image = render, relief = FLAT, borderwidth = 0, command = ljspop.destroy)
+    img.image = render
+    img.place(x = 175, y = 600)
     
 def macbtn():
     global store
@@ -991,19 +1182,36 @@ def macbtn():
 
     for n in menuDict:
         if store in n: 
-            storemenuDict.update({n[1] : menuDict[n]})
-            allprices = [v for v in storemenuDict.values()]
-            fooditems = Label(macpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
-            fooditems.place(x = 50, y = 250)
-            price = Label(macpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
-            price.place(x = 340, y = 250)
+            availability = menuDict[n][1]
+            if availability == "All":
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+                storemenuDict.update({n[1] : menuDict[n][0]})
+    
+    allprices = [v for v in storemenuDict.values()]
+    fooditems = Label(macpop, text = '\n'.join(storemenuDict), font = h3, bg = "white", justify = LEFT)
+    fooditems.place(x = 50, y = 250)
+    price = Label(macpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
+    price.place(x = 340, y = 250)
 
     Label(macpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 550)
     Entry(macpop, textvariable = pplwaiting).place(x = 150, y = 550)
-    Button(macpop, text = "Go!", bg = "silver", relief = FLAT, command = userWaitingTime, width = 4, height = 1).place(x = 300, y = 550)
 
-    okbtn = Button(macpop, text = "Okay", command = macpop.destroy)
-    okbtn.place(x = 175, y = 590)
+    #go button
+    load = Image.open('images/gobtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(macpop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img.image = render
+    img.place(x = 300, y = 550)
+
+    #quit button
+    load = Image.open('images/quitbtn.png')
+    render = ImageTk.PhotoImage(load)
+    img = Button(macpop, image = render, relief = FLAT, borderwidth = 0, command = macpop.destroy)
+    img.image = render
+    img.place(x = 175, y = 590)
 
 def tick():
     global time1
@@ -1014,11 +1222,6 @@ def tick():
         clock.config(text = time2)
 
     clock.after(10, tick)
-
-#parse all info in food worksheet and put into dictionary
-for row in range(2, food.max_row):
-    key = (food.cell(row, 1).value, food.cell(row, 2).value)
-    menu.update({key : food.cell(row, 3).value})
 
 # Font Styling
 h1 = ("Century Gothic", 14, "bold")
@@ -1048,7 +1251,8 @@ Label(left_frame, text = "Hello! Today is...", font = h1).place(x = 35, y = 20)
 #Label(left_frame2, text = "Customisation", font = h1).place(x = 38, y = 20)
 
 # Left frame content
-now = datetime.now()
+now = datetime.datetime.now()
+current = datetime.time()
 currentdate = now.strftime("%d %b %Y")
 currentime = now.strftime("%I:%M:%S %p")
 
