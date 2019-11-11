@@ -103,20 +103,17 @@ def excelConversion():                                         #Parses through t
 
 def userWaitingTime():
     global pplwaiting
-    customernumber = pplwaiting.get()
-
-    if customernumber.isdigit():
-            customernumber = int(pplwaiting.get())
-            avgwaittime = int(storeinfo[store][3])
-            waitingtime = customernumber * avgwaittime
-            messagebox.showinfo("Waiting Time", "The waiting time will be approximately " + str(waitingtime) + " mins")
-    else:
+    try:
+        customernumber = int(pplwaiting.get())
+        avgwaittime = int(storeinfo[store][3])
+        waitingtime = customernumber * avgwaittime
+        messagebox.showinfo("Waiting Time", "The waiting time will be approximately " + str(waitingtime) + " mins")
+    except:
         messagebox.showinfo("Error", "Please enter numbers only.")
 
 def usercustom():
     storesOpenList = []
     global ddl
-    
     # get user input date
     userdate = cal.get_date()
     
@@ -147,24 +144,26 @@ def usercustom():
             except:
                 break
 
-    ddlLabel = Label(window2, text = "Please choose a restaurant: ", font = h3, bg = "white")
-    ddlLabel.place(x = 10, y = 110)
-
     ddl = StringVar(window2)
-    ddl.set(storesOpenList[0]) #set first item as default value
+    try:
+        ddl.set(storesOpenList[0]) #set first item as default value
+        ddlLabel = Label(window2, text = "Please choose a restaurant: ", font = h3, bg = "white")
+        ddlLabel.place(x = 10, y = 110)
+        ddlist = OptionMenu(window2, ddl, storesOpenList[0], *storesOpenList)
+        ddlist.config(bg = "white", width = 20, relief = FLAT, font = h4)
+        ddlist.place(x = 250, y = 110)
 
-    ddlist = OptionMenu(window2, ddl, *storesOpenList)
-    ddlist.config(bg = "white", width = 20, relief = FLAT, font = h4)
-    ddlist.place(x = 250, y = 110)
-
-    #gobtn
-    load = Image.open('images/gobtn.png')
-    render = ImageTk.PhotoImage(load)
-    img = Button(window2, image = render, relief = FLAT, borderwidth = 0, command = customshopmenu)
-    img.image = render
-    img.place(x = 450, y = 107)
+        #gobtn
+        load = Image.open('images/gobtn.png')
+        render = ImageTk.PhotoImage(load)
+        img = Button(window2, image = render, relief = FLAT, borderwidth = 0, command = customshopmenu)
+        img.image = render
+        img.place(x = 450, y = 107) 
+    except:
+        messagebox.showerror("Error", "Sorry, no stores are available at your chosen time/date.")
 
 def customshopmenu():
+    global fooditems, price
     storemenuDict = {} 
     chosenshop = ddl.get()
     titleLabel = ""
