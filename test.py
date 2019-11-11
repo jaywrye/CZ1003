@@ -5,7 +5,6 @@ import datetime
 import time
 from tkinter import messagebox
 
-import menuDB
 import os
 import openpyxl
 from openpyxl import load_workbook
@@ -123,7 +122,17 @@ def usercustom():
     
     # get user input time
     userhour = hourcombo.get()
+    if userhour.isdigit():
+            userhour = hourcombo.get()
+    else:
+        messagebox.showinfo("Error", "Please enter numbers only.")
+
     usermin = mincombo.get()
+    if usermin.isdigit():
+            usermin = hourcombo.get()
+    else:
+        messagebox.showinfo("Error", "Please enter numbers only.")
+
     usertime = userhour + ":" + usermin
     convertedtime = datetime.datetime.strptime(usertime, "%H:%M")
     convertedtime2 = convertedtime.time()
@@ -157,8 +166,8 @@ def usercustom():
 
 def customshopmenu():
     storemenuDict = {} 
-
     chosenshop = ddl.get()
+    titleLabel = ""
 
     titleLabel = Label(window2, text = chosenshop + "'s Menu", bg = "white", font = h2)
     titleLabel.place(x = 10, y = 150)
@@ -168,9 +177,9 @@ def customshopmenu():
             availability = menuDict[n][1]
             if availability == "All":
                 storemenuDict.update({n[1] : menuDict[n][0]})
-            if availability == "Breakfast" and current <= lunchtime and current >= opentime:
+            if availability == "Breakfast":
                 storemenuDict.update({n[1] : menuDict[n][0]})
-            if availability == "Lunch" and current >= lunchtime and current <= closetime:
+            if availability == "Lunch":
                 storemenuDict.update({n[1] : menuDict[n][0]})
 
     allprices = [v for v in storemenuDict.values()]
@@ -296,6 +305,7 @@ def custom():
             hour = '0' + str(hour)
         hour_list.append(str(hour))
     hourcombo = ttk.Combobox(window2, values=hour_list, width=5,)
+    hourcombo.set(10)
     hourcombo.place(x = 350, y = 65)
 
     minute_list = []
@@ -303,7 +313,8 @@ def custom():
         if minute < 10:
             minute = '0' + str(minute)
         minute_list.append(str(minute))
-    mincombo = ttk.Combobox(window2, values=minute_list, width=5)
+    mincombo = ttk.Combobox(window2, text = "00", values=minute_list, width=5)
+    mincombo.set(00)
     mincombo.place(x = 420, y = 65)
 
     load = Image.open('images/gobtn.png')
@@ -1163,7 +1174,7 @@ def macbtn():
         closetime = storeOpenDict[store][day2][1]
 
     macpop = tk.Toplevel(root)
-    macpop.minsize(450, 650)
+    macpop.minsize(450, 450)
     macpop.title(store)
     macpop.config(bg = "white")
 
@@ -1196,22 +1207,22 @@ def macbtn():
     price = Label(macpop, text = '\n'.join(map(str, allprices)), font = h3, bg = "white")
     price.place(x = 340, y = 250)
 
-    Label(macpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 550)
-    Entry(macpop, textvariable = pplwaiting).place(x = 150, y = 550)
+    Label(macpop, text = "No. of people: ", font = h3, bg = "white").place(x = 10, y = 380)
+    Entry(macpop, textvariable = pplwaiting).place(x = 150, y = 380)
 
     #go button
     load = Image.open('images/gobtn.png')
     render = ImageTk.PhotoImage(load)
     img = Button(macpop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
     img.image = render
-    img.place(x = 300, y = 550)
+    img.place(x = 300, y = 380)
 
     #quit button
     load = Image.open('images/quitbtn.png')
     render = ImageTk.PhotoImage(load)
     img = Button(macpop, image = render, relief = FLAT, borderwidth = 0, command = macpop.destroy)
     img.image = render
-    img.place(x = 175, y = 590)
+    img.place(x = 175, y = 420)
 
 def tick():
     global time1
