@@ -48,16 +48,6 @@ y = 100
 root.geometry("%dx%d+%d+%d" % (w, h, x, y))
 
 
-def userWaitingTime():
-    global pplwaiting
-    try:
-        customernumber = int(pplwaiting.get())
-        avgwaittime = int(storeinfo[storename][3])
-        waitingtime = customernumber * avgwaittime
-        messagebox.showinfo("Waiting Time", "The waiting time will be approximately " + str(waitingtime) + " mins")
-    except:
-        messagebox.showinfo("Error", "Please enter numbers only.")
-
 def usercustom():
     storesOpenList = []
     global ddl, convertedtime2
@@ -156,7 +146,7 @@ def menubtn(ImgLocation, store):
     #go button
     load = Image.open('images/gobtn.png')
     render = ImageTk.PhotoImage(load)
-    img = Button(menupop, image = render, relief = FLAT, borderwidth = 0, command = userWaitingTime)
+    img = Button(menupop, image = render, relief = FLAT, borderwidth = 0, command = lambda : userWaitingTime(store, pplwaiting, storeInfo))
     img.image = render
     img.place(x = 270, y = 215)
 
@@ -325,6 +315,7 @@ h3Bold = ("Century Gothic", 11, "bold")
 h4 = ("Century Gothic", 9)
 
 menuDict, storeOpenDict = excelConversion("North Spine Canteen Details.xlsx")
+storeInfo = excelConversionInfo("North Spine Canteen Details.xlsx")
 # Main Frames
 left_frame = Frame(root, width = 220, height = 150)
 left_frame.grid(row = 0, column = 0, pady = 20, padx = 40)
