@@ -1,6 +1,8 @@
 import os
 import datetime
 from openpyxl import load_workbook
+from tkinter import messagebox
+
 
 def excelConversion(xlsxFileLocation):                                         #Parses through the excel and generates 2 dictionaries: menu, storeOpen
     wb = load_workbook(xlsxFileLocation)
@@ -117,11 +119,13 @@ def dictSplit(storemenuDict):                                   # Function that 
         storepriceList.append(storemenuDict[storename])
     return storenameList, storepriceList
 
-def storeAvgWaitTime(storename, customerNumber, infoDict):                                #Function that returns the average wait time per person for that store
-    storetype = ""
-    avgwaittime = 0
-    for n in infoDict:
-        if storename in infoDict:
-            infoDict = infoDict[n][0]
-        return int(avgwaittime)*customerNumber
+
+def userWaitingTime(storename, pplwaiting, storeinfo):
+    try:
+        customernumber = int(pplwaiting.get())
+        avgwaittime = int(storeinfo[storename][3])
+        waitingtime = customernumber * avgwaittime
+        messagebox.showinfo("Waiting Time", "The waiting time will be approximately " + str(waitingtime) + " mins")
+    except:
+        messagebox.showinfo("Error", "Please enter numbers only.")
 
