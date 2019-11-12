@@ -1,6 +1,5 @@
-import menuDB
 import os
-from datetime import *
+import datetime
 from openpyxl import load_workbook
 
 def excelConversion(xlsxFileLocation):                                         #Parses through the excel and generates 2 dictionaries: menu, storeOpen
@@ -92,7 +91,7 @@ def storemenu(storename, menuDict):                                            #
 
 def storemenutime(storename, currenttime, day, menuDict, storeOpenDict):         # Function that returns dictionary of ALL items on their menu available at current time {"Name of food item" : price of food}
     storemenuDict = {}                                                           # storename is a string
-    lunchtime = time(12, 0, 0)
+    lunchtime = datetime.time(12, 0, 0)
     openingtime, closingtime = storeopeningtime(storename, day, storeOpenDict)
     for n in menuDict:
         if storename in n:
@@ -125,5 +124,4 @@ def storeAvgWaitTime(storename, customerNumber, infoDict):                      
         if storename in infoDict:
             infoDict = infoDict[n][0]
         return int(avgwaittime)*customerNumber
-
 
