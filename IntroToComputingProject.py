@@ -26,6 +26,7 @@ storeOpenDict = {}
 #DayDict = {}
 now = datetime.datetime.now()
 current = datetime.datetime.now().time()
+todaydate = datetime.datetime.now().date()
 currentdate = now.strftime("%d %b %Y")
 currentime = now.strftime("%I:%M:%S %p")
 day = datetime.datetime.today().weekday()
@@ -91,6 +92,13 @@ def usercustom():
 
     # get user input date
     userdate = cal.get_date()
+
+    if userdate < todaydate:
+        messagebox.showerror("Error", "Please select today's date or a later date.")
+        window2.destroy()
+    else:
+        userdate = cal.get_date()
+
     
     # get user input time
     userhour = hourcombo.get()
@@ -98,12 +106,14 @@ def usercustom():
             userhour = hourcombo.get()
     else:
         messagebox.showinfo("Error", "Please enter numbers only.")
+        window2.destroy()
 
     usermin = mincombo.get()
     if usermin.isdigit():
             usermin = hourcombo.get()
     else:
         messagebox.showinfo("Error", "Please enter numbers only.")
+        window2.destroy()
 
     #pass and convert user-defined time into time format
     usertime = userhour + ":" + usermin
