@@ -44,9 +44,8 @@ DayDict = {}
 dayofweek = datetime.datetime.today().weekday()
 lunchtime = datetime.time(12,0,0)
 
-def excelConversion():                                         #Parses through the excel and generates 2 dictionaries: menu, storeOpen
-    #wb = load_workbook(xlsxFileLocation)
-    wb = openpyxl.load_workbook('North Spine Canteen Details.xlsx') 
+#Yi Shen
+def excelConversion(wb):                                         #Parses through the excel and generates 2 dictionaries: menu, storeOpen
     openinghours = wb['opening hours']                                          #opening hours sheet
     food = wb['food']                                                           #food sheet
     info = wb['store information']                                         #store information sheet
@@ -114,6 +113,7 @@ def userWaitingTime():
 def usercustom():
     storesOpenList = []
     global ddl
+
     # get user input date
     userdate = cal.get_date()
     
@@ -161,6 +161,7 @@ def usercustom():
         img.place(x = 450, y = 107) 
     except:
         messagebox.showerror("Error", "Sorry, no stores are available at your chosen time/date.")
+        
 
 def customshopmenu():
     global fooditems, price
@@ -1241,7 +1242,7 @@ h3 =  ("Century Gothic", 11)
 h3Bold = ("Century Gothic", 11, "bold")
 h4 = ("Century Gothic", 9)
 
-menuDict, storeOpenDict = excelConversion()
+menuDict, storeOpenDict = excelConversion(wb)
 # Main Frames
 left_frame = Frame(root, width = 220, height = 150)
 left_frame.grid(row = 0, column = 0, pady = 20, padx = 40)
